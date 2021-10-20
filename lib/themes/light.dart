@@ -24,9 +24,14 @@ var lightTheme = ThemeData(
       color: Colors.black,
     ),
     subtitle1: TextStyle(
-      fontSize: 12.0,
+      fontSize: 14.0,
       fontWeight: FontWeight.normal,
-      color: Colors.grey,
+      color: Colors.black,
+    ),
+    subtitle2: TextStyle(
+      fontSize: 13.0,
+      fontWeight: FontWeight.normal,
+      color: Colors.black,
     ),
   ),
 );

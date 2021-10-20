@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:hive/hive.dart';
+import 'package:intl/intl.dart';
 import 'package:notes_app_delthoid/db/notes_db.dart';
 import 'package:notes_app_delthoid/modules/models/note_model.dart';
+import 'package:notes_app_delthoid/modules/screens/view_note.dart';
 import 'package:notes_app_delthoid/themes/palette.dart';
 import 'package:notes_app_delthoid/widgets/custom_button.dart';
 import 'package:notes_app_delthoid/widgets/notecard.dart';
@@ -21,7 +24,6 @@ class _NotesScreenState extends State<NotesScreen> {
   @override
   void initState() {
     super.initState();
-    populate();
     refreshNotes();
   }
 
@@ -31,22 +33,11 @@ class _NotesScreenState extends State<NotesScreen> {
     super.dispose();
   }
 
-  //try to populate
-  Future populate() async {
-    var note = const Note(
-      title: 'Test title',
-      content: 'content',
-      date: 'test date',
-    );
-
-    await NotesDatabase.instance.create(note);
-  }
-
   Future refreshNotes() async {
     setState(() => isLoading = true);
-
-    notes = await NotesDatabase.instance.readAllNotes();
-
+    List<Note> _notes = await NotesDatabase.instance.readAllNotes();
+    setState(() => notes = _notes);
+    print('hehe');
     setState(() => isLoading = false);
   }
 
@@ -90,12 +81,14 @@ class _NotesScreenState extends State<NotesScreen> {
                     ),
                   ),
                   CustomButton(
-                    title: 'New',
-                    icon: const Icon(
-                      FeatherIcons.plusCircle,
-                    ),
-                    action: () => Navigator.pushNamed(context, '/add_note'),
-                  )
+                      title: 'New',
+                      icon: const Icon(
+                        FeatherIcons.plusCircle,
+                      ),
+                      action: () async {
+                        await Navigator.pushNamed(context, '/add_note');
+                        refreshNotes();
+                      }),
                 ],
               ),
               const Divider(
@@ -108,19 +101,33 @@ class _NotesScreenState extends State<NotesScreen> {
                           child: Text('No data'),
                         )
                       : Expanded(
-                          child: ListView.builder(
+                          child: StaggeredGridView.countBuilder(
                             physics: const BouncingScrollPhysics(),
-                            shrinkWrap: true,
+                            crossAxisCount: 4,
                             itemCount: notes.length,
+                            staggeredTileBuilder: (index) => const StaggeredTile.fit(2),
+                            mainAxisSpacing: 10,
+                            crossAxisSpacing: 10,
                             itemBuilder: (context, index) {
-                              //notes.forEach((element) => print(element.id));
-                              return Padding(
-                                padding: const EdgeInsets.only(top: 10, bottom: 10),
+                              final note = notes[index];
+                              var id = note.id.toString();
+                              return Dismissible(
+                                key: UniqueKey(),
+                                onDismissed: (direction) async {
+                                  await NotesDatabase.instance.delete(int.parse(id));
+                                  setState(() {
+                                    refreshNotes();
+                                  });
+                                },
                                 child: NoteCard(
-                                  title: notes[index].title,
-                                  date: notes[index].date,
-                                  content: notes[index].content,
-                                  action: () => Navigator.pushNamed(context, '/view_note'),
+                                  note: note,
+                                  action: () async {
+                                    await Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => ViewNote(note: note),
+                                        ));
+                                  },
                                 ),
                               );
                             },

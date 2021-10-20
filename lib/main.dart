@@ -25,13 +25,14 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
+
       title: 'Flutter Demo',
       theme: lightTheme,
       //home: const NotesScreen(),
       initialRoute: '/',
       routes: {
         '/': (context) => const NotesScreen(),
-        '/view_note': (context) => const ViewNote(),
         '/add_note': (context) => const AddNote(),
       },
     );
