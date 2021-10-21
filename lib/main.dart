@@ -27,7 +27,7 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
 
-      title: 'Flutter Demo',
+      title: 'Flutter Note',
       theme: lightTheme,
       //home: const NotesScreen(),
       initialRoute: '/',

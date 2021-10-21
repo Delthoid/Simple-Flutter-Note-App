@@ -17,7 +17,7 @@ class CustomButton extends StatelessWidget {
 
   static ButtonStyle flatButtonStyle = TextButton.styleFrom(
     primary: Colors.black87,
-    backgroundColor: whiteSmoke,
+    backgroundColor: Colors.transparent,
     minimumSize: const Size(88, 42),
     elevation: 0,
     padding: const EdgeInsets.symmetric(horizontal: 16.0),

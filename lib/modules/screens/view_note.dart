@@ -17,6 +17,8 @@ class ViewNote extends StatefulWidget {
 }
 
 class _ViewNoteState extends State<ViewNote> {
+  late FocusNode focusTitle;
+
   String title = '';
   String date = '';
   String content = '';
@@ -25,7 +27,22 @@ class _ViewNoteState extends State<ViewNote> {
   bool editMode = false;
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    focusTitle = FocusNode();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    focusTitle.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final _formKey = GlobalKey<FormState>();
     String valueString = widget.note.color.split('(0x')[1].split(')')[0]; // kind of hacky..
     int value = int.parse(valueString, radix: 16);
     Color otherColor = Color(value);
@@ -67,7 +84,10 @@ class _ViewNoteState extends State<ViewNote> {
                     editMode
                         ? IconButton(onPressed: () => updateNote(), icon: const Icon(FeatherIcons.save))
                         : IconButton(
-                            onPressed: () => setState(() => editMode = true),
+                            onPressed: () => setState(() {
+                              editMode = true;
+                              focusTitle.requestFocus();
+                            }),
                             icon: const Icon(FeatherIcons.edit2),
                           ),
                     IconButton(
@@ -102,11 +122,12 @@ class _ViewNoteState extends State<ViewNote> {
                 ),
                 Expanded(
                   child: Form(
+                    //key: _formKey,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         TextFormField(
-                          enabled: editMode ? true : false,
+                          //enabled: editMode ? true : false,
                           style: Theme.of(context).textTheme.headline2,
                           initialValue: widget.note.title,
                           decoration: const InputDecoration(
@@ -132,7 +153,7 @@ class _ViewNoteState extends State<ViewNote> {
                             maxLines: null,
                             initialValue: widget.note.content,
                             style: const TextStyle(
-                              fontSize: 14,
+                              fontSize: 12,
                               color: Colors.black,
                               fontWeight: FontWeight.w500,
                             ),
