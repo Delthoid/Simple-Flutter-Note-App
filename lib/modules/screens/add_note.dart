@@ -25,7 +25,7 @@ class _AddNoteState extends State<AddNote> {
   String title = '';
   String date = '';
   String content = '';
-  String color = '';
+  String color = 'Color(0xffffcdd2)';
 
   @override
   Widget build(BuildContext context) {

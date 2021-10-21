@@ -4,10 +4,6 @@ import 'package:intl/intl.dart';
 import 'package:notes_app_delthoid/db/notes_db.dart';
 import 'package:notes_app_delthoid/modules/models/note_model.dart';
 
-import 'package:notes_app_delthoid/themes/palette.dart';
-import 'package:notes_app_delthoid/widgets/custom_button.dart';
-import 'package:notes_app_delthoid/widgets/notecard.dart';
-
 class ViewNote extends StatefulWidget {
   const ViewNote({
     Key? key,
@@ -26,11 +22,13 @@ class _ViewNoteState extends State<ViewNote> {
   String content = '';
   String color = '';
 
+  bool editMode = false;
+
   @override
   Widget build(BuildContext context) {
     String valueString = widget.note.color.split('(0x')[1].split(')')[0]; // kind of hacky..
     int value = int.parse(valueString, radix: 16);
-    Color otherColor = new Color(value);
+    Color otherColor = Color(value);
     return Scaffold(
       backgroundColor: otherColor,
       body: SafeArea(
@@ -66,12 +64,40 @@ class _ViewNoteState extends State<ViewNote> {
                         ),
                       ),
                     ),
+                    editMode
+                        ? IconButton(onPressed: () => updateNote(), icon: const Icon(FeatherIcons.save))
+                        : IconButton(
+                            onPressed: () => setState(() => editMode = true),
+                            icon: const Icon(FeatherIcons.edit2),
+                          ),
                     IconButton(
                         onPressed: () {
-                          updateNote();
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text(
+                                  'This note will be deleted',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                actionsAlignment: MainAxisAlignment.center,
+                                actions: [
+                                  ElevatedButton(onPressed: () => Navigator.pop(context), child: const Text('Just kidding')),
+                                  ElevatedButton(
+                                      onPressed: () async {
+                                        await deleteNote();
+                                        Navigator.pop(context);
+                                      },
+                                      child: const Text('Confirm')),
+                                ],
+                              );
+                            },
+                          );
                         },
-                        icon: const Icon(FeatherIcons.save)),
-                    IconButton(onPressed: () {}, icon: const Icon(FeatherIcons.trash2))
+                        icon: const Icon(FeatherIcons.trash2))
                   ],
                 ),
                 Expanded(
@@ -80,6 +106,7 @@ class _ViewNoteState extends State<ViewNote> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         TextFormField(
+                          enabled: editMode ? true : false,
                           style: Theme.of(context).textTheme.headline2,
                           initialValue: widget.note.title,
                           decoration: const InputDecoration(
@@ -100,6 +127,7 @@ class _ViewNoteState extends State<ViewNote> {
                         ),
                         Expanded(
                           child: TextFormField(
+                            enabled: editMode ? true : false,
                             keyboardType: TextInputType.multiline,
                             maxLines: null,
                             initialValue: widget.note.content,
@@ -140,17 +168,19 @@ class _ViewNoteState extends State<ViewNote> {
   Future updateNote() async {
     final note = Note(
       id: widget.note.id,
-      title: title,
-      content: content,
+      title: title.isEmpty ? widget.note.title : title,
+      content: content.isEmpty ? widget.note.content : content,
       color: widget.note.color,
       date: widget.note.date,
     );
     await NotesDatabase.instance.update(note);
-    var test = await NotesDatabase.instance.readNote(int.parse(widget.note.id.toString()));
-    print('test ' + test.title);
-    // ScaffoldMessenger.of(context).showSnackBar(
-    //   const SnackBar(content: Text('Updating note')),
-    // );
+    //var test = await NotesDatabase.instance.readNote(int.parse(widget.note.id.toString()));
+    Navigator.of(context).pop();
+  }
+
+  Future deleteNote() async {
+    final noteId = int.parse(widget.note.id.toString());
+    await NotesDatabase.instance.delete(noteId);
     Navigator.of(context).pop();
   }
 }

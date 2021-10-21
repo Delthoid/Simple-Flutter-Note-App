@@ -20,6 +20,7 @@ class NotesScreen extends StatefulWidget {
 class _NotesScreenState extends State<NotesScreen> {
   late List<Note> notes;
   bool isLoading = false;
+  bool isGridMode = true;
 
   @override
   void initState() {
@@ -68,27 +69,28 @@ class _NotesScreenState extends State<NotesScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Expanded(
-                    //width: 200,
-                    //height: 44,
-                    child: Row(
-                      children: const [
-                        Icon(FeatherIcons.grid),
-                        SizedBox(width: 10),
-                        Text('Display by grid'),
-                      ],
+                  CustomButton(
+                    title: isGridMode ? 'List View' : 'Grid View',
+                    icon: Icon(
+                      isGridMode ? FeatherIcons.list : FeatherIcons.grid,
                     ),
+                    action: () async {
+                      isGridMode = !isGridMode;
+                      refreshNotes();
+                    },
                   ),
                   CustomButton(
-                      title: 'New',
-                      icon: const Icon(
-                        FeatherIcons.plusCircle,
-                      ),
-                      action: () async {
-                        await Navigator.pushNamed(context, '/add_note');
-                        refreshNotes();
-                      }),
+                    title: 'New',
+                    icon: const Icon(
+                      FeatherIcons.plusCircle,
+                    ),
+                    action: () async {
+                      await Navigator.pushNamed(context, '/add_note');
+                      refreshNotes();
+                    },
+                  ),
                 ],
               ),
               const Divider(
@@ -101,42 +103,84 @@ class _NotesScreenState extends State<NotesScreen> {
                           child: Text('No data'),
                         )
                       : Expanded(
-                          child: StaggeredGridView.countBuilder(
-                            physics: const BouncingScrollPhysics(),
-                            crossAxisCount: 4,
-                            itemCount: notes.length,
-                            staggeredTileBuilder: (index) => const StaggeredTile.fit(2),
-                            mainAxisSpacing: 10,
-                            crossAxisSpacing: 10,
-                            itemBuilder: (context, index) {
-                              final note = notes[index];
-                              var id = note.id.toString();
-                              return Dismissible(
-                                key: UniqueKey(),
-                                onDismissed: (direction) async {
-                                  await NotesDatabase.instance.delete(int.parse(id));
-                                  setState(() {
-                                    refreshNotes();
-                                  });
-                                },
-                                child: NoteCard(
-                                  note: note,
-                                  action: () async {
-                                    await Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => ViewNote(note: note),
-                                        ));
-                                  },
-                                ),
-                              );
-                            },
-                          ),
+                          child: isGridMode ? staggeredNotes() : listNotes(),
                         )
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget staggeredNotes() {
+    return StaggeredGridView.countBuilder(
+      physics: const BouncingScrollPhysics(),
+      crossAxisCount: 4,
+      itemCount: notes.length,
+      staggeredTileBuilder: (index) => const StaggeredTile.fit(2),
+      mainAxisSpacing: 10,
+      crossAxisSpacing: 10,
+      itemBuilder: (context, index) {
+        final note = notes[index];
+        var id = note.id.toString();
+        return Dismissible(
+          key: UniqueKey(),
+          onDismissed: (direction) async {
+            await NotesDatabase.instance.delete(int.parse(id));
+            setState(() {
+              refreshNotes();
+            });
+          },
+          child: NoteCard(
+            note: note,
+            action: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ViewNote(note: note),
+                ),
+              );
+              refreshNotes();
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  Widget listNotes() {
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const BouncingScrollPhysics(),
+      itemCount: notes.length,
+      itemBuilder: (context, index) {
+        final note = notes[index];
+        var id = note.id.toString();
+        return Dismissible(
+          key: UniqueKey(),
+          onDismissed: (direction) async {
+            await NotesDatabase.instance.delete(int.parse(id));
+            setState(() {
+              refreshNotes();
+            });
+          },
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: NoteCard(
+              note: note,
+              action: () async {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ViewNote(note: note),
+                  ),
+                );
+                refreshNotes();
+              },
+            ),
+          ),
+        );
+      },
     );
   }
 }
