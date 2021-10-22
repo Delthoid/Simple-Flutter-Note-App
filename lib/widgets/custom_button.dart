@@ -15,11 +15,11 @@ class CustomButton extends StatelessWidget {
   final Function() action;
   final Icon icon;
 
-  static ButtonStyle flatButtonStyle = TextButton.styleFrom(
+  static ButtonStyle customButton = TextButton.styleFrom(
     primary: Colors.black87,
-    backgroundColor: Colors.transparent,
+    backgroundColor: Colors.grey[200],
     minimumSize: const Size(88, 42),
-    elevation: 0,
+    elevation: 1,
     padding: const EdgeInsets.symmetric(horizontal: 16.0),
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.all(Radius.circular(20)),
@@ -40,7 +40,7 @@ class CustomButton extends StatelessWidget {
           Text(title),
         ],
       ),
-      style: flatButtonStyle,
+      style: customButton,
     );
   }
 }

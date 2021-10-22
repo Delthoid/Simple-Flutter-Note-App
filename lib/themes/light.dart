@@ -3,6 +3,7 @@ import 'package:notes_app_delthoid/themes/palette.dart';
 
 var lightTheme = ThemeData(
   primaryColorLight: Colors.pink,
+  primarySwatch: Colors.pink,
   brightness: Brightness.light,
   primaryColor: Colors.pink[50],
   fontFamily: 'Montserrat',

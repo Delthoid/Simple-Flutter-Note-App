@@ -8,7 +8,6 @@ import 'package:notes_app_delthoid/modules/models/note_model.dart';
 import 'package:notes_app_delthoid/modules/screens/view_note.dart';
 import 'package:notes_app_delthoid/themes/palette.dart';
 import 'package:notes_app_delthoid/widgets/custom_button.dart';
-import 'package:notes_app_delthoid/widgets/dissmisible.dart';
 import 'package:notes_app_delthoid/widgets/notecard.dart';
 
 class NotesScreen extends StatefulWidget {
@@ -55,6 +54,16 @@ class _NotesScreenState extends State<NotesScreen> {
       ),
       // floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       // floatingActionButton: const CustomButton(title: 'Add new note'),
+      floatingActionButton: CustomButton(
+        title: 'New',
+        icon: const Icon(
+          FeatherIcons.plus,
+        ),
+        action: () async {
+          await Navigator.pushNamed(context, '/add_note');
+          refreshNotes();
+        },
+      ),
       body: SizedBox(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
@@ -72,24 +81,14 @@ class _NotesScreenState extends State<NotesScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
+                  const Spacer(),
                   CustomButton(
-                    title: isGridMode ? 'List View' : 'Grid View',
+                    title: isGridMode ? 'List' : 'Grid',
                     icon: Icon(
                       isGridMode ? FeatherIcons.list : FeatherIcons.grid,
                     ),
                     action: () async {
                       isGridMode = !isGridMode;
-                      refreshNotes();
-                    },
-                  ),
-                  const Spacer(),
-                  CustomButton(
-                    title: 'New',
-                    icon: const Icon(
-                      FeatherIcons.plus,
-                    ),
-                    action: () async {
-                      await Navigator.pushNamed(context, '/add_note');
                       refreshNotes();
                     },
                   ),
@@ -99,10 +98,24 @@ class _NotesScreenState extends State<NotesScreen> {
                 color: Colors.transparent,
               ),
               isLoading
-                  ? const CircularProgressIndicator()
+                  ? Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const [
+                          Center(child: CircularProgressIndicator()),
+                        ],
+                      ),
+                    )
                   : notes.isEmpty
-                      ? const Center(
-                          child: Text('No data'),
+                      ? Expanded(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: const [
+                              Center(
+                                child: Text('No data'),
+                              ),
+                            ],
+                          ),
                         )
                       : Expanded(
                           child: isGridMode ? staggeredNotes() : listNotes(),
@@ -153,31 +166,19 @@ class _NotesScreenState extends State<NotesScreen> {
           refreshNotes();
         });
       },
-      background: Row(
-        children: const [
-          Icon(Icons.push_pin_outlined),
-        ],
-      ),
-      secondaryBackground: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: const [
-          Icon(FeatherIcons.trash2),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: 10),
-        child: NoteCard(
-          note: note,
-          action: () async {
-            await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => ViewNote(note: note),
-              ),
-            );
-            refreshNotes();
-          },
-        ),
+      background: Row(mainAxisAlignment: MainAxisAlignment.start, children: const [Icon(FeatherIcons.trash2)]),
+      secondaryBackground: Row(mainAxisAlignment: MainAxisAlignment.end, children: const [Icon(FeatherIcons.trash2)]),
+      child: NoteCard(
+        note: note,
+        action: () async {
+          await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ViewNote(note: note),
+            ),
+          );
+          refreshNotes();
+        },
       ),
     );
   }
