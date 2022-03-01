@@ -133,7 +133,7 @@ class _NotesScreenState extends State<NotesScreen> {
       crossAxisCount: 4,
       itemCount: notes.length,
       staggeredTileBuilder: (index) => const StaggeredTile.fit(2),
-      mainAxisSpacing: 0,
+      mainAxisSpacing: 10,
       crossAxisSpacing: 10,
       itemBuilder: (context, index) {
         final note = notes[index];
@@ -152,7 +152,10 @@ class _NotesScreenState extends State<NotesScreen> {
       itemCount: notes.length,
       itemBuilder: (context, index) {
         final note = notes[index];
-        return dissmisibleCard(note);
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 10),
+          child: dissmisibleCard(note),
+        );
       },
     );
   }
@@ -166,8 +169,12 @@ class _NotesScreenState extends State<NotesScreen> {
           refreshNotes();
         });
       },
-      background: Row(mainAxisAlignment: MainAxisAlignment.start, children: const [Icon(FeatherIcons.trash2)]),
-      secondaryBackground: Row(mainAxisAlignment: MainAxisAlignment.end, children: const [Icon(FeatherIcons.trash2)]),
+      background: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: const [Icon(FeatherIcons.trash2)]),
+      secondaryBackground: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: const [Icon(FeatherIcons.trash2)]),
       child: NoteCard(
         note: note,
         action: () async {
