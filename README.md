@@ -1,6 +1,6 @@
 # notes_app_delthoid
 
-A new Flutter project.
+A simple notes app made with Flutter and SQLite for database
 
 ## Getting Started
 
